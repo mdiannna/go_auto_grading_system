@@ -1,6 +1,3 @@
-// install:
-// go get -u github.com/ledongthuc/pdf
-
 package main
 
 
@@ -9,13 +6,9 @@ import (
     "net/http"
     "log"
     "strconv"
-    // "path/filepath"
-    // "fmt"
     "strings"
     "bytes"
     "github.com/ledongthuc/pdf"
-    // tokenize "github.com/jdkato/prose/tokenize"
-    // "github.com/euskadi31/go-tokenizer"
     "regexp"
 )
 
@@ -71,7 +64,6 @@ func ReadPdf(path string) (string, error) {
 
 func splitWord(word string) []string {
     array := regexp.MustCompile("[\\:\\,\\.\\?\\!\\...\\-\\'\\(\\)\\[\\]\\{\\}\\=\\_\\\"\\\\“\\\\”\\//\\s]+").Split(word, -1)
-    // array := regexp.MustCompile("[\\:\\,\\.\\s]+").Split(word, -1)
     return array
 }
 
@@ -194,7 +186,7 @@ func main() {
 
     // http.HandleFunc("/", indexHandler)
 
-     ////////////////// serve
+    ////////////////// serve
     http.ListenAndServe(":8080", nil)
 
     log.Fatal(http.ListenAndServe(":8080", nil))
