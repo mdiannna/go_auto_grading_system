@@ -70,6 +70,18 @@
         <span>{{$el}}</span>,
       {{end}}
       </p>
+      <hr>
+      <b>All nouns from report:</b>
+      {{range $el := .AllNounsReport}}    
+        <span>{{$el}}</span>,
+      {{end}}
+
+      <hr>
+      <b>All nouns from requirements:</b>
+      {{range $el := .AllNounsRequirements}}    
+        <span>{{$el}}</span>,
+      {{end}}
+
 
 	{{else}}
 	    <h1 class="mb-3">Welcome to the Automatic Grading System!</h1>
@@ -85,6 +97,10 @@
 
       <label class="form-label">Pdf path</label><br />
       <input type="text" name="pdf_path" class="form-control"><br />
+
+      <label class="form-label">Lab requirements path:</label><br />
+      <input type="text" name="requirements_path" class="form-control"><br />
+
 
 			<input type="submit">
 
