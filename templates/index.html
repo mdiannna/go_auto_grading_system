@@ -59,7 +59,7 @@
 
 
 
-<div class="container">
+<div class="container pb-4">
 	{{if .Success}}
 	    <h1>{{.StudentName}}, your grade is {{.Grade}}</h1>
       <p>{{.PdfContent}}</p>
@@ -81,6 +81,13 @@
       {{range $el := .AllNounsRequirements}}    
         <span>{{$el}}</span>,
       {{end}}
+<hr>
+      <b>Jaccard similarity between nouns:</b>
+      {{.JaccardSimNouns}}
+      <br>
+      <b>Nr of nouns from requirements included in the report:</b> {{.NrNounsIntersect}}
+      <br>
+      <b>Percentage of nouns from the requirements included in the report: {{.PercNounsFromReq}}</b>
 
 
 	{{else}}

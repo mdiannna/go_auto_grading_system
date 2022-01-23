@@ -2,12 +2,14 @@ package main
 
 import (
 	"bytes"
-	"fmt"
+	// "fmt"
+	"github.com/deckarep/golang-set"
 	"github.com/jdkato/prose/v2"
 	"github.com/ledongthuc/pdf"
 	"html/template"
 	"log"
 	"net/http"
+	// "reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -23,6 +25,9 @@ type StudentGradeData struct {
 	PdfTokenized         []string
 	AllNounsReport       []string
 	AllNounsRequirements []string
+	JaccardSimNouns      float32
+	NrNounsIntersect     int
+	PercNounsFromReq     float32
 }
 
 type GradedPageFormData struct {
@@ -116,17 +121,17 @@ func TokenizeToWords(text string) []string {
 	return splitWord(strings.ToLower(text))
 }
 
-func POS_tagging_text(text string) {
-	doc, err := prose.NewDocument(text)
-	CheckErr(err)
+// func POS_tagging_text(text string) {
+// 	doc, err := prose.NewDocument(text)
+// 	CheckErr(err)
 
-	for _, ent := range doc.Tokens() {
-		fmt.Println(ent.Text, ent.Label, ent.Tag)
-		// Go GPE
-		// Google GPE
-	}
+// 	for _, ent := range doc.Tokens() {
+// 		fmt.Println(ent.Text, ent.Label, ent.Tag)
+// 		// Go GPE
+// 		// Google GPE
+// 	}
 
-}
+// }
 
 func filter_nouns(text string) []string {
 	result := make([]string, 0)
@@ -140,6 +145,34 @@ func filter_nouns(text string) []string {
 		}
 	}
 	return result
+}
+
+func stringArrToSet(str []string) mapset.Set {
+	set := mapset.NewSet()
+
+	for _, i := range str {
+		set.Add(i)
+	}
+
+	return set
+}
+
+func jaccard_similarity(words1 []string, words2 []string) (float32, int, int) {
+	set1 := stringArrToSet(words1)
+	set2 := stringArrToSet(words2)
+
+	intersection := set1.Intersect(set2)
+	union := set1.Union(set2)
+	// fmt.Print("intersection cardinality:", intersection.Cardinality())
+
+	return float32(intersection.Cardinality()) / float32(union.Cardinality()), intersection.Cardinality(), union.Cardinality()
+
+	//     fmt.Println(textdistance.LevenshteinDistance(words1, words2))
+	// 	fmt.Println(textdistance.DamerauLevenshteinDistance(s1, s2))
+	// 	fmt.Println(textdistance.JaroDistance(s1, s2))
+	// 	fmt.Println(textdistance.JaroWinklerDistance(s1, s2))
+	// textdistance.Jac/
+
 }
 
 func main() {
@@ -181,6 +214,12 @@ func main() {
 			pdf_tokenized_joined := strings.Join(pdf_tokenized[:], " ")
 			all_nouns_report := filter_nouns(pdf_tokenized_joined)
 
+			jaccard_similarity_nouns, nr_nouns_intersect, _ := jaccard_similarity(all_nouns_requirements, all_nouns_report)
+			nouns_set_req := stringArrToSet(all_nouns_requirements)
+			log.Println("nr of nouns in the requirements:", float32(nouns_set_req.Cardinality()))
+			log.Println("nr nouns intersect:", nr_nouns_intersect)
+			perc_nouns_from_req := float32(nr_nouns_intersect) / float32(nouns_set_req.Cardinality())
+
 			points := StrToInt(r.FormValue("received_points"))
 			total_points := 10
 
@@ -197,10 +236,13 @@ func main() {
 				PdfTokenized:         pdf_tokenized,
 				AllNounsReport:       all_nouns_report,
 				AllNounsRequirements: all_nouns_requirements,
+				JaccardSimNouns:      jaccard_similarity_nouns,
+				NrNounsIntersect:     nr_nouns_intersect,
+				PercNounsFromReq:     perc_nouns_from_req,
 			}
 
-			log.Print("data:")
-			log.Print(data)
+			// log.Print("data:")
+			// log.Print(data)
 
 			// tmpl_form.Execute(w, struct{ Success bool; Grade int}{true, 10})
 			// tmpl_form.Execute(w, struct{ Success bool}{true})
